@@ -13,6 +13,11 @@ const firstReq = `https://cataas.com/cat/says/${greeting}?width=${width}&height=
 const secondReq = `https://cataas.com/cat/says/${who}?width=${width}&height=${height}&color${color}&s=${size}`;
 const fileName = "cat-card";
 
+/**
+ * Generate Image
+ * @param {request} request
+ * @returns {Promise<Object>}
+ */
 const generateImage = async (request) => {
   try {
     const res = await axios.get(request, {
@@ -25,6 +30,11 @@ const generateImage = async (request) => {
   }
 };
 
+/**
+ * Blend Image and Write File
+ * @param {firstBody} firstBody
+ * @param {secondBody} secondBody
+ */
 const blendImage = async (firstBody, secondBody) => {
   blend(
     [
@@ -38,7 +48,7 @@ const blendImage = async (firstBody, secondBody) => {
 
         writeFile(fileOut, data, "binary", (err) => {
           if (err) {
-            throw new Error("F Error", error);
+            throw new Error("File write Error", error);
           }
           console.log("The file was saved!");
         });
@@ -49,6 +59,9 @@ const blendImage = async (firstBody, secondBody) => {
   );
 };
 
+/**
+ * Get Image
+ */
 const getImage = async () => {
   try {
     const [firstBody, secondBody] = await Promise.all([
