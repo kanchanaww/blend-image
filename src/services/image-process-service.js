@@ -1,21 +1,31 @@
-let axios = require("axios");
-let argv = require("minimist")(process.argv.slice(2));
-let blend = require("@mapbox/blend");
-let { writeFile } = require("fs");
-let { join } = require("path");
+const axios = require("axios");
+const blend = require("@mapbox/blend");
+const { writeFile } = require("fs");
+const { join } = require("path");
 
-const generateImage = async (firstReq) => {
+const greeting = "Hello";
+const who = "You";
+const width = 400;
+const height = 500;
+const color = "Pink";
+const size = 100;
+const firstReq = `https://cataas.com/cat/says/${greeting}?width=${width}&height=${height}&color${color}&s=${size}`;
+const secondReq = `https://cataas.com/cat/says/${who}?width=${width}&height=${height}&color${color}&s=${size}`;
+const fileName = "cat-card";
+
+const generateImage = async (request) => {
   try {
-    const res = await axios.get(firstReq.url, { encoding: "binary" });
+    const res = await axios.get(request, {
+      responseType: "arraybuffer",
+      responseEncoding: "binary",
+    });
     return res.data;
   } catch (error) {
-    console.log(error);
+    throw new Error("Image Generating Error", error);
   }
 };
 
 const blendImage = async (firstBody, secondBody) => {
-  let width = 400;
-  let height = 500;
   blend(
     [
       { buffer: new Buffer(firstBody, "binary"), x: 0, y: 0 },
@@ -24,18 +34,16 @@ const blendImage = async (firstBody, secondBody) => {
     { width: width * 2, height: height, format: "jpeg" },
     (err, data) => {
       try {
-        const fileOut = join(process.cwd(), `/cat-card.jpg`);
+        const fileOut = join(process.cwd(), `/${fileName}.jpg`);
 
         writeFile(fileOut, data, "binary", (err) => {
           if (err) {
-            console.log(err);
-            return;
+            throw new Error("F Error", error);
           }
-
           console.log("The file was saved!");
         });
       } catch (error) {
-        console.log("blend error", error);
+        throw new Error("Image Blend Error", error);
       }
     }
   );
@@ -43,52 +51,13 @@ const blendImage = async (firstBody, secondBody) => {
 
 const getImage = async () => {
   try {
-    let {
-      greeting = "Hello",
-      who = "You",
-      width = 400,
-      height = 500,
-      color = "Pink",
-      size = 100,
-    } = argv;
-
-    let firstReq = {
-      // https://cataas.com/cat/says/Hi%20There?width=500&amp;height=800&amp;c=Cyan&amp;s=150
-      url:
-        "https://cataas.com/cat/says/" +
-        greeting +
-        "?width=" +
-        width +
-        "&height=" +
-        height +
-        "&color" +
-        color +
-        "&s=" +
-        size,
-    };
-
-    let secondReq = {
-      url:
-        "https://cataas.com/cat/says/" +
-        who +
-        "?width=" +
-        width +
-        "&height=" +
-        height +
-        "&color" +
-        color +
-        "&s=" +
-        size,
-    };
-
     const [firstBody, secondBody] = await Promise.all([
       generateImage(firstReq),
       generateImage(secondReq),
     ]);
     await blendImage(firstBody, secondBody);
   } catch (error) {
-    console.log(error);
-    return null;
+    throw new Error("Get Images or Call Imgae Blend Error", error);
   }
 };
 
