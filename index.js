@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const imageRouter = require("./src/routes/image-route");
+const axios = require("axios");
 
 app.use("/", imageRouter);
 
@@ -14,5 +15,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`app listening at http://localhost:${port}`);
+  const baseUrl = `http://localhost:${port}/`;
+  axios.get(baseUrl);
 });
